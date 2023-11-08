@@ -1,4 +1,5 @@
 # import pure_python_random_library as py_random
+import argparse
 import py_random_source_code as py_random
 from typing import List
 import lcg  # Import the lcg.py module
@@ -26,12 +27,11 @@ class MersenneTwister:
     def generate_sequence(self, n_samples: int) -> List[float]:
         return [self.random_instance.random() for _ in range(n_samples)]
 
-def run_test_cases():
+def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, count=None):
     # Parameters for the LCG algorithm
-    m = 2**32
-    a = 1664525
-    c = 1013904223
-    seed = 123456789
+    # m = 2**32
+    # a = 1664525
+    # c = 1013904223
     
     # Initialize the Mersenne Twister with a random seed
     mt = MersenneTwister(seed)
@@ -42,14 +42,17 @@ def run_test_cases():
         {"n_numbers": 1000000, "range": (1, 1000000)},
         {"n_numbers": 10000000, "range": (1, 100000000)},
     ]
+
+    if count is not None:
+        test_cases = [{"n_numbers": count, "range": (1, 1000000)}]
     
     for case in test_cases:
         # Memory and time measurement start for LCG
         start_time_lcg = time.perf_counter()
         mem_usage_start_lcg = memory_profiler.memory_usage()
-        
+
         # Generating LCG numbers
-        lcg_raw_floats = lcg.rand_float_samples(case["n_numbers"], m, a, c, seed)
+        lcg_raw_floats = lcg.rand_float_samples(case["n_numbers"], lcg_multiplier, lcg_modulus, lcg_increment, seed)
         lcg_numbers = [int(num * (case["range"][1] - case["range"][0])) + case["range"][0]
                        for num in lcg_raw_floats]
         
@@ -112,5 +115,43 @@ def run_test_cases():
         plt.tight_layout()
         plt.savefig(f"plots/{case['n_numbers']}_numbers.png")
 
+
+def main():
+    parser = argparse.ArgumentParser(description="RNG Test Cases comparing LCG and MT algorithms")
+
+    parser.add_argument(
+        "--lcg_multiplier", type=int, default=2_147_483_648, help="Multiplier 'a' in LCG"
+    )
+    parser.add_argument(
+        "--lcg_modulus", type=int, default=594_156_893, help="Modulus 'm' in LCG"
+    )
+    parser.add_argument(
+        "--lcg_increment", type=int, default=0, help="Increment 'c' in LCG"
+    )
+    parser.add_argument(
+        "--seed", type=int, required=False, help="Initial seed for LCG and MT"
+    )
+    parser.add_argument(
+        "--count", type=int, required=False, help="Number of random numbers to generate"
+    )
+
+    args = parser.parse_args()
+
+    # Access the LCG parameters from the args namespace
+    lcg_multiplier = args.lcg_multiplier
+    lcg_modulus = args.lcg_modulus
+    lcg_increment = args.lcg_increment
+    seed = args.seed or py_random.Random().randint(0, 2**32 - 1)
+    count = args.count
+
+    # log
+    print(f"LCG Multiplier: {lcg_multiplier}")
+    print(f"LCG Increment: {lcg_increment}")
+    print(f"LCG Modulus: {lcg_modulus}")
+    print(f"Seed: {seed}")
+    print(f"Count: {count}")
+
+    run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, count)
+    
 if __name__ == "__main__":
-    run_test_cases()
+    main()
