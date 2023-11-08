@@ -74,13 +74,13 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
         mem_used_mt = max(mem_usage_end_mt) - min(mem_usage_start_mt)
 
         # Chi-squared test for uniformity for LCG
-        observed_frequencies, _ = np.histogram(lcg_numbers, bins=100)
+        observed_frequencies, _ = np.histogram(lcg_numbers, bins=100, range=case["range"])
         expected_frequencies = np.full_like(observed_frequencies, len(lcg_numbers)/100)
         chi_square_statistic_lcg, p_value_lcg = stats.chisquare(observed_frequencies, expected_frequencies)
         autocorr_coefficient_lcg = np.corrcoef(lcg_numbers[:-1], lcg_numbers[1:])[0, 1]
 
         # Chi-squared test for uniformity for MT
-        observed_frequencies, _ = np.histogram(mt_numbers, bins=100)
+        observed_frequencies, _ = np.histogram(mt_numbers, bins=100, range=case["range"])
         expected_frequencies = np.full_like(observed_frequencies, len(mt_numbers)/100)
         chi_square_statistic_mt, p_value_mt = stats.chisquare(observed_frequencies, expected_frequencies)
         autocorr_coefficient_mt = np.corrcoef(mt_numbers[:-1], mt_numbers[1:])[0, 1]
