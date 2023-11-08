@@ -3,7 +3,6 @@ import argparse
 import py_random_source_code as py_random
 from typing import List
 import lcg  # Import the lcg.py module
-import random
 import time
 import memory_profiler
 from matplotlib import pyplot as plt
@@ -27,24 +26,18 @@ class MersenneTwister:
     def generate_sequence(self, n_samples: int) -> List[float]:
         return [self.random_instance.random() for _ in range(n_samples)]
 
-def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, count=None):
-    # Parameters for the LCG algorithm
-    # m = 2**32
-    # a = 1664525
-    # c = 1013904223
-    
+def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, count=None):
     # Initialize the Mersenne Twister with a random seed
     mt = MersenneTwister(seed)
     
     test_cases = [
-        {"n_numbers": 1000, "range": (1, 1000000)},
-        {"n_numbers": 100000, "range": (1, 1000000)},
+        {"n_numbers": 1000, "range": (0, 100)},
+        {"n_numbers": 100000, "range": (1, 10000)},
         {"n_numbers": 1000000, "range": (1, 1000000)},
-        {"n_numbers": 10000000, "range": (1, 100000000)},
     ]
 
     if count is not None:
-        test_cases = [{"n_numbers": count, "range": (1, 1000000)}]
+        test_cases = [{"n_numbers": count, "range": (1, maxRange)}]
     
     for case in test_cases:
         # Memory and time measurement start for LCG
@@ -52,7 +45,7 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, count=None)
         mem_usage_start_lcg = memory_profiler.memory_usage()
 
         # Generating LCG numbers
-        lcg_raw_floats = lcg.rand_float_samples(case["n_numbers"], lcg_multiplier, lcg_modulus, lcg_increment, seed)
+        lcg_raw_floats = lcg.rand_float_samples(case["n_numbers"], lcg_modulus, lcg_multiplier, lcg_increment, seed)
         lcg_numbers = [int(num * (case["range"][1] - case["range"][0])) + case["range"][0]
                        for num in lcg_raw_floats]
         
@@ -101,13 +94,13 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, count=None)
         plt.figure(figsize=(12, 6))
 
         plt.subplot(1, 2, 1)
-        plt.hist(lcg_numbers, bins=50, alpha=0.7, label='LCG')  # Increased number of bins to 100
+        plt.hist(lcg_numbers, bins=50, alpha=0.7, label='LCG')
         plt.title('LCG Distribution')
         plt.xlabel('Number')
         plt.ylabel('Frequency')
 
         plt.subplot(1, 2, 2)
-        plt.hist(mt_numbers, bins=50, alpha=0.7, label='Mersenne Twister')  # Increased number of bins to 100
+        plt.hist(mt_numbers, bins=50, alpha=0.7, label='Mersenne Twister')
         plt.title('Mersenne Twister Distribution')
         plt.xlabel('Number')
         plt.ylabel('Frequency')
@@ -120,10 +113,10 @@ def main():
     parser = argparse.ArgumentParser(description="RNG Test Cases comparing LCG and MT algorithms")
 
     parser.add_argument(
-        "--lcg_multiplier", type=int, default=2_147_483_648, help="Multiplier 'a' in LCG"
+        "--lcg_modulus", type=int, default=2**32, help="Modulus 'm' in LCG"
     )
     parser.add_argument(
-        "--lcg_modulus", type=int, default=594_156_893, help="Modulus 'm' in LCG"
+        "--lcg_multiplier", type=int, default=594_156_893, help="Multiplier 'a' in LCG"
     )
     parser.add_argument(
         "--lcg_increment", type=int, default=0, help="Increment 'c' in LCG"
@@ -134,8 +127,14 @@ def main():
     parser.add_argument(
         "--count", type=int, required=False, help="Number of random numbers to generate"
     )
+    parser.add_argument(
+        "--max_range", type=int, default=1000000, help="Range of the numbers to be generated"
+    )
 
     args = parser.parse_args()
+
+    if args.lcg_multiplier >= args.lcg_modulus or args.lcg_increment >= args.lcg_modulus:
+        raise ValueError("Multiplier and increment must be less than modulus")
 
     # Access the LCG parameters from the args namespace
     lcg_multiplier = args.lcg_multiplier
@@ -143,15 +142,18 @@ def main():
     lcg_increment = args.lcg_increment
     seed = args.seed or py_random.Random().randint(0, 2**32 - 1)
     count = args.count
+    maxRange = args.max_range
 
     # log
     print(f"LCG Multiplier: {lcg_multiplier}")
     print(f"LCG Increment: {lcg_increment}")
     print(f"LCG Modulus: {lcg_modulus}")
     print(f"Seed: {seed}")
-    print(f"Count: {count}")
+    if count is not None:
+        print(f"Count: {count}")
+        print(f"Range: 1 - {maxRange}")
 
-    run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, count)
+    run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, count)
     
 if __name__ == "__main__":
     main()
