@@ -110,7 +110,7 @@ def run_test_cases():
         plt.ylabel('Frequency')
 
         plt.tight_layout()
-        plt.show()
+        plt.savefig(f"plots/{case['n_numbers']}_numbers.png")
 
 if __name__ == "__main__":
     run_test_cases()
