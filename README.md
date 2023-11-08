@@ -17,6 +17,10 @@ Para instalar, basta executar o comando:
 ```bash
 pip install -r requirements.txt
 ```
+#### Códigos fontes
+
+ - Algoritmo LCG: https://github.com/rossilor95/lcg-python/blob/main/lcg.py
+ - Algoritmo Mersenne Twister: https://github.com/python/cpython/blob/3.12/Lib/random.py
 
 ### Execução:
 
