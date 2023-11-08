@@ -11,12 +11,12 @@ import numpy as np
 
 def print_statistics(case_name, time_taken, memory_used, chi_stat, chi_p, auto_corr):
     print(f"{case_name} Test Case:")
-    print(f"  Time taken: {time_taken:.6f}s")
-    print(f"  Memory used: {memory_used:.6f} MiB")
-    print(f"  Statistics Results:")
-    print(f"    Chi-Squared Statistic: {chi_stat}")
+    print(f"  Tempo percorrido: {time_taken:.6f}s")
+    print(f"  Memória utilizada: {memory_used:.6f} MiB")
+    print(f"  Resultados estatísticos:")
+    print(f"    Teste Qui-Quadrado: {chi_stat}")
     print(f"    P-Value: {chi_p}")
-    print(f"    Autocorrelation Coefficient: {auto_corr}\n")
+    print(f"    Coeficiente de autocorrelação: {auto_corr}\n")
 
 # Mersenne Twister Implementation
 class MersenneTwister:
@@ -74,14 +74,14 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
         mem_used_mt = max(mem_usage_end_mt) - min(mem_usage_start_mt)
 
         # Chi-squared test for uniformity for LCG
-        observed_frequencies, _ = np.histogram(lcg_numbers, bins=50)
-        expected_frequencies = np.full_like(observed_frequencies, len(lcg_numbers)/50)
+        observed_frequencies, _ = np.histogram(lcg_numbers, bins=100)
+        expected_frequencies = np.full_like(observed_frequencies, len(lcg_numbers)/100)
         chi_square_statistic_lcg, p_value_lcg = stats.chisquare(observed_frequencies, expected_frequencies)
         autocorr_coefficient_lcg = np.corrcoef(lcg_numbers[:-1], lcg_numbers[1:])[0, 1]
 
         # Chi-squared test for uniformity for MT
-        observed_frequencies, _ = np.histogram(mt_numbers, bins=50)
-        expected_frequencies = np.full_like(observed_frequencies, len(mt_numbers)/50)
+        observed_frequencies, _ = np.histogram(mt_numbers, bins=100)
+        expected_frequencies = np.full_like(observed_frequencies, len(mt_numbers)/100)
         chi_square_statistic_mt, p_value_mt = stats.chisquare(observed_frequencies, expected_frequencies)
         autocorr_coefficient_mt = np.corrcoef(mt_numbers[:-1], mt_numbers[1:])[0, 1]
 
@@ -94,16 +94,16 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
         plt.figure(figsize=(12, 6))
 
         plt.subplot(1, 2, 1)
-        plt.hist(lcg_numbers, bins=50, alpha=0.7, label='LCG')
-        plt.title('LCG Distribution')
-        plt.xlabel('Number')
-        plt.ylabel('Frequency')
+        plt.hist(lcg_numbers, bins=100, alpha=0.7, label='LCG')
+        plt.title('Distribuição do LCG')
+        plt.xlabel('Número')
+        plt.ylabel('Frequência')
 
         plt.subplot(1, 2, 2)
-        plt.hist(mt_numbers, bins=50, alpha=0.7, label='Mersenne Twister')
-        plt.title('Mersenne Twister Distribution')
-        plt.xlabel('Number')
-        plt.ylabel('Frequency')
+        plt.hist(mt_numbers, bins=100, alpha=0.7, label='Mersenne Twister')
+        plt.title('Distribuição do Mersenne Twister')
+        plt.xlabel('Número')
+        plt.ylabel('Frequência')
 
         plt.tight_layout()
         plt.savefig(f"plots/{case['n_numbers']}_numbers.png")
@@ -113,28 +113,28 @@ def main():
     parser = argparse.ArgumentParser(description="RNG Test Cases comparing LCG and MT algorithms")
 
     parser.add_argument(
-        "--lcg_modulus", type=int, default=2**32, help="Modulus 'm' in LCG"
+        "--lcg_modulus", type=int, default=2**32, help="Multiplicador 'a' do LCG"
     )
     parser.add_argument(
-        "--lcg_multiplier", type=int, default=594_156_893, help="Multiplier 'a' in LCG"
+        "--lcg_multiplier", type=int, default=594_156_893, help="Módulo 'm' do LCG"
     )
     parser.add_argument(
-        "--lcg_increment", type=int, default=0, help="Increment 'c' in LCG"
+        "--lcg_increment", type=int, default=0, help="Incremento 'c' do LCG"
     )
     parser.add_argument(
-        "--seed", type=int, required=False, help="Initial seed for LCG and MT"
+        "--seed", type=int, required=False, help="Seed inicial dos algoritmos LCG e MT"
     )
     parser.add_argument(
-        "--count", type=int, required=False, help="Number of random numbers to generate"
+        "--count", type=int, required=False, help="Número total de números aleatórios a serem gerados"
     )
     parser.add_argument(
-        "--max_range", type=int, default=1000000, help="Range of the numbers to be generated"
+        "--max_range", type=int, default=1000000, help="Abrangência dos números aleatórios gerados"
     )
 
     args = parser.parse_args()
 
     if args.lcg_multiplier >= args.lcg_modulus or args.lcg_increment >= args.lcg_modulus:
-        raise ValueError("Multiplier and increment must be less than modulus")
+        raise ValueError("lcg_multiplier e lcg_increment devem ser menores que lcg_modulus")
 
     # Access the LCG parameters from the args namespace
     lcg_multiplier = args.lcg_multiplier
