@@ -1,0 +1,4 @@
+memory-profiler==0.61.0
+matplotlib==3.8.1
+scipy==1.11.3
+numpy==1.26.1

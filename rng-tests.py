@@ -15,10 +15,10 @@ def run_test_cases():
     m = 2**32
     a = 1664525
     c = 1013904223
-    # seed = 1
+    seed = 1
     
     # Initialize the Mersenne Twister with the seed
-    mt = MersenneTwister()
+    mt = MersenneTwister(seed)
     
     test_cases = [
         {"n_numbers": 1000, "range": (1, 100)},
@@ -28,7 +28,7 @@ def run_test_cases():
     
     for case in test_cases:
         # Generating LCG numbers using the rand_float_samples function from lcg.py
-        lcg_raw_floats = lcg.rand_float_samples(case["n_numbers"], m, a, c)
+        lcg_raw_floats = lcg.rand_float_samples(case["n_numbers"], m, a, c, seed)
         lcg_numbers = []
         for num in lcg_raw_floats:
             scaled_num = num * (case["range"][1] - case["range"][0])
