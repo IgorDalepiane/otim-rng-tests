@@ -106,7 +106,7 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
         plt.ylabel('Frequência')
 
         plt.tight_layout()
-        plt.savefig(f"plots/{case['n_numbers']}_numbers.png")
+        plt.savefig(f"plots/{seed}_{case['n_numbers']}.png")
 
 
 def main():
