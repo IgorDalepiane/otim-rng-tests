@@ -31,15 +31,15 @@ def run_test_cases():
     m = 2**32
     a = 1664525
     c = 1013904223
-    seed = random.getrandbits(32)
+    seed = 123456789
     
     # Initialize the Mersenne Twister with a random seed
     mt = MersenneTwister(seed)
     
     test_cases = [
-        # {"n_numbers": 1000, "range": (1, 1000000)},
-        # {"n_numbers": 100000, "range": (1, 1000000)},
-        # {"n_numbers": 1000000, "range": (1, 1000000)},
+        {"n_numbers": 1000, "range": (1, 1000000)},
+        {"n_numbers": 100000, "range": (1, 1000000)},
+        {"n_numbers": 1000000, "range": (1, 1000000)},
         {"n_numbers": 10000000, "range": (1, 100000000)},
     ]
     
