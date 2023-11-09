@@ -2,7 +2,7 @@
 import argparse
 import py_random_source_code as py_random
 from typing import List
-import lcg  # Import the lcg.py module
+import lcg
 import time
 import memory_profiler
 from matplotlib import pyplot as plt
@@ -40,14 +40,20 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
         test_cases = [{"n_numbers": count, "range": (1, maxRange)}]
     
     for case in test_cases:
+        #   Defining variables for the test case
+        range_start, range_end = case["range"]
+
         # Memory and time measurement start for LCG
         start_time_lcg = time.perf_counter()
         mem_usage_start_lcg = memory_profiler.memory_usage()
 
         # Generating LCG numbers
         lcg_raw_floats = lcg.rand_float_samples(case["n_numbers"], lcg_modulus, lcg_multiplier, lcg_increment, seed)
-        lcg_numbers = [int(num * (case["range"][1] - case["range"][0])) + case["range"][0]
-                       for num in lcg_raw_floats]
+        lcg_numbers = []
+        for num in lcg_raw_floats:
+            # Scaling and shifting the number
+            scaled_num = int(num * (range_end - range_start)) + range_start
+            lcg_numbers.append(scaled_num)
         
         # Memory and time measurement end for LCG
         mem_usage_end_lcg = memory_profiler.memory_usage()
@@ -59,8 +65,11 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
         
         # Generating MT numbers
         mt_raw_floats = mt.generate_sequence(case["n_numbers"])
-        mt_numbers = [int(num * (case["range"][1] - case["range"][0])) + case["range"][0]
-                      for num in mt_raw_floats]
+        mt_numbers = []
+        for num in mt_raw_floats:
+            # Scaling and shifting the number
+            scaled_num = int(num * (range_end - range_start)) + range_start
+            mt_numbers.append(scaled_num)
         
         # Memory and time measurement end for MT
         mem_usage_end_mt = memory_profiler.memory_usage()
