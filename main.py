@@ -31,9 +31,9 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
     mt = MersenneTwister(seed)
     
     test_cases = [
-        {"n_numbers": 1000, "range": (0, 100)},
+        {"n_numbers": 1000, "range": (1, 100)},
         {"n_numbers": 100000, "range": (1, 10000)},
-        {"n_numbers": 1000000, "range": (1, 1000000)},
+        {"n_numbers": 1000000, "range": (1, 100000)},
     ]
 
     if count is not None:
@@ -99,19 +99,30 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
         print_statistics('MT', time_taken_mt, mem_used_mt, chi_square_statistic_mt, p_value_mt, autocorr_coefficient_mt)
         print('-' * 50)
         
+        bins = 10000
+
+        if(case["n_numbers"] < bins):
+            bins = case["n_numbers"]
+
         # Plotting the results for visual comparison
         plt.figure(figsize=(12, 6))
 
         plt.subplot(1, 2, 1)
-        plt.hist(lcg_numbers, bins=100, alpha=0.7, label='LCG')
+        plt.hist(lcg_numbers, bins, alpha=0.6, label='LCG', color='green')
         plt.title('Distribuição do LCG')
-        plt.xlabel('Número')
+        if(int(case["n_numbers"]/bins) == 1):
+            plt.xlabel(f'{int(case["n_numbers"]/bins)} número por barra')
+        else:
+            plt.xlabel(f'{int(case["n_numbers"]/bins)} números por barra')
         plt.ylabel('Frequência')
 
         plt.subplot(1, 2, 2)
-        plt.hist(mt_numbers, bins=100, alpha=0.7, label='Mersenne Twister')
+        plt.hist(mt_numbers, bins, alpha=0.7, label='Mersenne Twister')
         plt.title('Distribuição do Mersenne Twister')
-        plt.xlabel('Número')
+        if(int(case["n_numbers"]/bins) == 1):
+            plt.xlabel(f'{int(case["n_numbers"]/bins)} número por barra')
+        else:
+            plt.xlabel(f'{int(case["n_numbers"]/bins)} números por barra')
         plt.ylabel('Frequência')
 
         plt.tight_layout()
