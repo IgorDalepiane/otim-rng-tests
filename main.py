@@ -1,4 +1,3 @@
-# import pure_python_random_library as py_random
 import argparse
 import py_random_source_code as py_random
 from typing import List
@@ -31,14 +30,16 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
     mt = MersenneTwister(seed)
     
     test_cases = [
-        {"n_numbers": 1000, "range": (1, 100)},
-        {"n_numbers": 100000, "range": (1, 10000)},
-        {"n_numbers": 1000000, "range": (1, 100000)},
+        {"n_numbers": 100,     "range": (1, 10)},     # Expected 10 numbers per bar
+        {"n_numbers": 1000,    "range": (1, 100)},    # Expected 10 numbers per bar
+        {"n_numbers": 10000,   "range": (1, 1000)},   # Expected 10 numbers per bar
+        {"n_numbers": 100000,  "range": (1, 10000)},  # Expected 10 numbers per bar
+        {"n_numbers": 1000000, "range": (1, 100000)}, # Expected 10 numbers per bar
     ]
 
     if count is not None:
         test_cases = [{"n_numbers": count, "range": (1, maxRange)}]
-    
+
     for case in test_cases:
         #   Defining variables for the test case
         range_start, range_end = case["range"]
@@ -83,14 +84,14 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
         mem_used_mt = max(mem_usage_end_mt) - min(mem_usage_start_mt)
 
         # Chi-squared test for uniformity for LCG
-        observed_frequencies, _ = np.histogram(lcg_numbers, bins=100, range=case["range"])
-        expected_frequencies = np.full_like(observed_frequencies, len(lcg_numbers)/100)
+        observed_frequencies, _ = np.histogram(lcg_numbers, bins=case["range"][1], range=case["range"])
+        expected_frequencies = np.full_like(observed_frequencies, len(lcg_numbers)/case["range"][1])
         chi_square_statistic_lcg, p_value_lcg = stats.chisquare(observed_frequencies, expected_frequencies)
         autocorr_coefficient_lcg = np.corrcoef(lcg_numbers[:-1], lcg_numbers[1:])[0, 1]
 
         # Chi-squared test for uniformity for MT
-        observed_frequencies, _ = np.histogram(mt_numbers, bins=100, range=case["range"])
-        expected_frequencies = np.full_like(observed_frequencies, len(mt_numbers)/100)
+        observed_frequencies, _ = np.histogram(mt_numbers, bins=case["range"][1], range=case["range"])
+        expected_frequencies = np.full_like(observed_frequencies, len(mt_numbers)/case["range"][1])
         chi_square_statistic_mt, p_value_mt = stats.chisquare(observed_frequencies, expected_frequencies)
         autocorr_coefficient_mt = np.corrcoef(mt_numbers[:-1], mt_numbers[1:])[0, 1]
 
@@ -98,31 +99,22 @@ def run_test_cases(lcg_multiplier, lcg_modulus, lcg_increment, seed, maxRange, c
         print_statistics('LCG', time_taken_lcg, mem_used_lcg, chi_square_statistic_lcg, p_value_lcg, autocorr_coefficient_lcg)
         print_statistics('MT', time_taken_mt, mem_used_mt, chi_square_statistic_mt, p_value_mt, autocorr_coefficient_mt)
         print('-' * 50)
-        
-        bins = 10000
-
-        if(case["n_numbers"] < bins):
-            bins = case["n_numbers"]
 
         # Plotting the results for visual comparison
         plt.figure(figsize=(12, 6))
 
+        bins = case["range"][1] if case["range"][1] > 100 else 100
+
         plt.subplot(1, 2, 1)
-        plt.hist(lcg_numbers, bins, alpha=0.6, label='LCG', color='green')
+        plt.hist(lcg_numbers, bins=bins-1, alpha=0.7, label='LCG')
         plt.title('Distribuição do LCG')
-        if(int(case["n_numbers"]/bins) == 1):
-            plt.xlabel(f'{int(case["n_numbers"]/bins)} número por barra')
-        else:
-            plt.xlabel(f'{int(case["n_numbers"]/bins)} números por barra')
+        plt.xlabel('Intervalo - Números gerados por barra: ' + str(int(case["n_numbers"]/case["range"][1])))
         plt.ylabel('Frequência')
 
         plt.subplot(1, 2, 2)
-        plt.hist(mt_numbers, bins, alpha=0.7, label='Mersenne Twister')
+        plt.hist(mt_numbers, bins=bins-1, alpha=0.7, label='Mersenne Twister')
         plt.title('Distribuição do Mersenne Twister')
-        if(int(case["n_numbers"]/bins) == 1):
-            plt.xlabel(f'{int(case["n_numbers"]/bins)} número por barra')
-        else:
-            plt.xlabel(f'{int(case["n_numbers"]/bins)} números por barra')
+        plt.xlabel('Intervalo - Números gerados por barra: ' + str(int(case["n_numbers"]/case["range"][1])))
         plt.ylabel('Frequência')
 
         plt.tight_layout()
